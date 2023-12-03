@@ -1,12 +1,14 @@
 
 import React from 'react'
-import Latihanget from './Latihanget/Latihanget'
+
+import Latihancreate from './Latihancreate/Latihancreate'
 
 const App = () => {
   return (
     <>
       <h1>Hello REAct</h1>
-      <Latihanget/>
+      {/* <Latihanget/> */}
+      <Latihancreate/>
       
     </>
   )
