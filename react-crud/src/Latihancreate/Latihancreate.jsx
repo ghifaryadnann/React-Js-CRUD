@@ -2,6 +2,7 @@ import React from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, TextInput, Button } from 'flowbite-react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { FaTrash } from "react-icons/fa";
 
 
 const Latihancreate = () => {
@@ -26,9 +27,28 @@ const Latihancreate = () => {
         })
         setFetchStaus(false)
       }
-
-        
     },[fetchStatus, setFetchStaus])
+
+
+    const handleDelete = (event) => {
+      const conf = window.confirm("apakah yakin ingin hapus?")
+      let idData = parseInt(event.target.value)
+
+      if (conf){
+axios.delete(`https://backendexample.sanbercloud.com/api/student-scores/${idData}`)
+      .then((res) => {
+        alert("Berhasil Di apus")
+        setFetchStaus(true)
+      })
+      .catch((err) => {
+        alert(err)
+
+      })
+
+      }
+
+      
+    }
 
     const handleNilai = (score) => {
       if (score >= 80){
@@ -48,7 +68,10 @@ const Latihancreate = () => {
       let name = event.target.name
       let value = event.target.value
 
-      setInput((prevInput) => ({...prevInput, [name] : value}))
+      // setInput((prevInput) => ({...prevInput, [name] : value}))
+      if (name === "name") {
+        setInput({ ...input, name: value })
+      }
 
    
     }
@@ -87,6 +110,7 @@ const Latihancreate = () => {
           <TableHeadCell>Mata Kuliah</TableHeadCell>
           <TableHeadCell>Nilai</TableHeadCell>
           <TableHeadCell>Index Nilai</TableHeadCell>
+          <TableHeadCell>Action</TableHeadCell>
         </TableHead>
 
 
@@ -94,14 +118,15 @@ const Latihancreate = () => {
           {data !== null && data.map((res, index) => {
               return (
                 <>
-                  <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white" key={index}>
+                  <TableRow key={res.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white" >
                     {index + 1}
                     </TableCell>
                     <TableCell>{res.name}</TableCell>
                     <TableCell>{res.course}</TableCell>
                     <TableCell>{res.score}</TableCell>
                     <TableCell>{handleNilai(res.score)}</TableCell>
+                    <TableCell><Button color='failure' onClick={handleDelete} value={res.id}><FaTrash/></Button></TableCell>
                   </TableRow>
                 </>
               )
