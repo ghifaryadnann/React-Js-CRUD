@@ -2,12 +2,13 @@ import React from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, TextInput, Button } from 'flowbite-react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaTrash } from "react-icons/fa";
+
 
 
 const Latihancreate = () => {
     const [data, setData] = useState(null)
     const [fetchStatus, setFetchStaus] = useState (true)
+    const [currentID, setCurrentId] = useState (-1)
     const [input, setInput] = useState ({
       name : "",
       course : "",
@@ -34,8 +35,9 @@ const Latihancreate = () => {
       const conf = window.confirm("apakah yakin ingin hapus?")
       let idData = parseInt(event.target.value)
 
+      
       if (conf){
-axios.delete(`https://backendexample.sanbercloud.com/api/student-scores/${idData}`)
+        axios.delete(`https://backendexample.sanbercloud.com/api/student-scores/${idData}`)
       .then((res) => {
         alert("Berhasil Di apus")
         setFetchStaus(true)
@@ -70,10 +72,13 @@ axios.delete(`https://backendexample.sanbercloud.com/api/student-scores/${idData
 
       // setInput((prevInput) => ({...prevInput, [name] : value}))
       if (name === "name") {
-        setInput({ ...input, name: value })
+        setInput({ ...input, name: value });
+      } else if (name === "course") {
+        setInput({ ...input, course: value });
+      } else if (name === "score") {
+        setInput({ ...input, score: value });
       }
-
-   
+  
     }
 
     const handleSubmit = (event) => {
@@ -81,22 +86,45 @@ axios.delete(`https://backendexample.sanbercloud.com/api/student-scores/${idData
 
       let {name, course, score} = input
       
-      axios.post("https://backendexample.sanbercloud.com/api/student-scores",{name, course, score})
+      if (currentID === -1 ){
+        axios.post("https://backendexample.sanbercloud.com/api/student-scores",{name, course, score})
       .then ((res) => {
         console.log(res)
         setFetchStaus(true)
       })
 
-      
+      } else {
+        axios.put(`https://backendexample.sanbercloud.com/api/student-scores/${currentID}`, {name,course,score})
+        setFetchStaus(true)
+      }
+
+      setCurrentId(-1)
 
       setInput ({
         name : "",
         course : "",
         score : "",
       })
-
      
     }
+
+    const handleEdit = (event) => {
+      let idData = parseInt(event.target.value)
+
+      setCurrentId(idData)
+
+      axios.get(`https://backendexample.sanbercloud.com/api/student-scores/${idData}`)
+      .then ((res) => {
+        let data = res.data
+        
+        setInput({
+          name : data.name,
+          course : data.course,
+          score : data.score
+        })
+      })
+    }
+   
 
   return (
     <div>
@@ -126,7 +154,8 @@ axios.delete(`https://backendexample.sanbercloud.com/api/student-scores/${idData
                     <TableCell>{res.course}</TableCell>
                     <TableCell>{res.score}</TableCell>
                     <TableCell>{handleNilai(res.score)}</TableCell>
-                    <TableCell><Button color='failure' onClick={handleDelete} value={res.id}><FaTrash/></Button></TableCell>
+                    <button onClick={handleDelete} value={res.id} className="bg-red-500 hover:bg-red-700 p-2 m-1 rounded-xl text-white">Delete</button>
+                    <button onClick={handleEdit} value={res.id} className="bg-red-500 hover:bg-red-700 p-2 m-1 rounded-xl text-white">Edit</button>
                   </TableRow>
                 </>
               )
